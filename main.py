@@ -10,18 +10,6 @@ UID = os.environ["USERNAME"]
 PWD = os.environ["PASSWORD"]
 RNDTM = os.environ["RANDOMTIME"]
 
-#出错处理
-def is_element_present(browser, xpath):
-    from selenium.common.exceptions import NoSuchElementException
-
-    try:
-        element = browser.find_element_by_xpath(xpath)
-    except NoSuchElementException as e:
-        print(e)
-        return False
-    else:
-        return True
-
 #登录打卡
 def sign_in(uid, pwd):
     msg=""
@@ -37,12 +25,10 @@ def sign_in(uid, pwd):
     browser = webdriver.Chrome(options=chrome_options)
     # browser = webdriver.Chrome()
     browser.get("http://ids.hhu.edu.cn/amserver/UI/Login?goto=http%3A%2F%2Fform.hhu.edu.cn%2Fpdc%2Fform%2Flist")
-    # 打印当前页面title
-    print(browser.title)
 
     try:
         # input uid and password
-        print("Inputting the UID and Password of User {0}".format(uid))
+        print("正在进行登陆...")
         browser.find_element_by_id("IDToken1").send_keys(uid)
         browser.find_element_by_id("IDToken2").send_keys(pwd)
         # click to sign in
@@ -55,38 +41,28 @@ def sign_in(uid, pwd):
         img_list[4].click()
         time.sleep(3)
     
-        #打印当前页面URL
+        #获取当前页面URL
         msg=browser.title
         url=browser.current_url
-    
-        print("Checking whether User {0} has signed in".format(uid))
+
         if msg == "防疫上报统计系统":
-            print(msg)
-            print(url)
+            print('登陆成功,即将进行打卡')
             a_list=browser.find_elements_by_tag_name("a")
             a_list[0].click()
             time.sleep(2)
-            msg=browser.title
-            url=browser.current_url
-            print(msg)
-            print(url)
             browser.find_element_by_id("saveBtn").click()
-            msg=browser.title
-            url=browser.current_url
-            print(msg)
-            print(url)
         else:
-            print('fail to sign')
+            print('登陆失败')
             return False
 
     except Exception as e:
-        msg = "while signing in for user " + uid + " there is an exception: \n" + str(e)
+        msg = "登录过程中发生错误: " + str(e)
         print(msg)
     finally:
         browser.quit()
         
     # quit the browser
-    print("Singing in for User {0} is finished".format(uid))
+    print('打卡成功')
     return True
 
 #随机时间
@@ -138,7 +114,7 @@ if __name__ == "__main__":
             if flag:
                 print("第 2 次尝试成功!")
             else:
-                print("第 2 次尝试失败!")
-        print()
+                print("第 2 次尝试失败!\n请自行手动打卡!")
         time.sleep(30)
+    print("**************************************")
     print("本次任务执行完毕")
